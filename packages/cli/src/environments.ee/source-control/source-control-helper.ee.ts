@@ -110,8 +110,10 @@ export function sourceControlFoldersExistCheck(
 }
 
 export function isSourceControlLicensed() {
-	const license = Container.get(License);
-	return license.isSourceControlLicensed();
+	// Modified for self-hosted: always return true
+	return true;
+	// const license = Container.get(License);
+	// return license.isSourceControlLicensed();
 }
 
 export async function generateSshKeyPair(keyType: KeyPairType) {

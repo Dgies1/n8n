@@ -217,7 +217,9 @@ export class License implements LicenseProvider {
 	}
 
 	isLicensed(feature: BooleanLicenseFeature) {
-		return this.manager?.hasFeatureEnabled(feature) ?? false;
+		// Modified for self-hosted: always return true for all features
+		return true;
+		// return this.manager?.hasFeatureEnabled(feature) ?? false;
 	}
 
 	/** @deprecated Use `LicenseState.isSharingLicensed` instead. */
@@ -292,7 +294,9 @@ export class License implements LicenseProvider {
 
 	/** @deprecated Use `LicenseState.isSourceControlLicensed` instead. */
 	isSourceControlLicensed() {
-		return this.isLicensed(LICENSE_FEATURES.SOURCE_CONTROL);
+		// Modified for self-hosted: always return true
+		return true;
+		// return this.isLicensed(LICENSE_FEATURES.SOURCE_CONTROL);
 	}
 
 	/** @deprecated Use `LicenseState.isExternalSecretsLicensed` instead. */
@@ -345,7 +349,15 @@ export class License implements LicenseProvider {
 	}
 
 	getValue<T extends keyof FeatureReturnType>(feature: T): FeatureReturnType[T] {
-		return this.manager?.getFeatureValue(feature) as FeatureReturnType[T];
+		// Modified for self-hosted: return unlimited for quotas, 'Enterprise' for planName
+		if (feature === 'planName') {
+			return 'Enterprise (Self-Hosted)' as FeatureReturnType[T];
+		}
+		if (feature.toString().startsWith('quota:')) {
+			return UNLIMITED_LICENSE_QUOTA as FeatureReturnType[T];
+		}
+		return true as FeatureReturnType[T];
+		// return this.manager?.getFeatureValue(feature) as FeatureReturnType[T];
 	}
 
 	getManagementJwt(): string {

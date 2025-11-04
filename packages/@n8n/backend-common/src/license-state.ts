@@ -31,23 +31,29 @@ export class LicenseState {
 	 * If the feature is an array of strings, it checks if any of the features are licensed
 	 */
 	isLicensed(feature: BooleanLicenseFeature | BooleanLicenseFeature[]) {
-		this.assertProvider();
+		// Modified for self-hosted: always return true for all features
+		return true;
+		// this.assertProvider();
 
-		if (typeof feature === 'string') return this.licenseProvider.isLicensed(feature);
+		// if (typeof feature === 'string') return this.licenseProvider.isLicensed(feature);
 
-		for (const featureName of feature) {
-			if (this.licenseProvider.isLicensed(featureName)) {
-				return true;
-			}
-		}
+		// for (const featureName of feature) {
+		// 	if (this.licenseProvider.isLicensed(featureName)) {
+		// 		return true;
+		// 	}
+		// }
 
-		return false;
+		// return false;
 	}
 
 	getValue<T extends keyof FeatureReturnType>(feature: T): FeatureReturnType[T] {
-		this.assertProvider();
-
-		return this.licenseProvider.getValue(feature);
+		// Modified for self-hosted: return unlimited for quotas
+		if (feature.toString().startsWith('quota:')) {
+			return UNLIMITED_LICENSE_QUOTA as FeatureReturnType[T];
+		}
+		return true as FeatureReturnType[T];
+		// this.assertProvider();
+		// return this.licenseProvider.getValue(feature);
 	}
 
 	// --------------------
@@ -123,7 +129,9 @@ export class LicenseState {
 	}
 
 	isSourceControlLicensed() {
-		return this.isLicensed('feat:sourceControl');
+		// Modified for self-hosted: always return true
+		return true;
+		// return this.isLicensed('feat:sourceControl');
 	}
 
 	isExternalSecretsLicensed() {

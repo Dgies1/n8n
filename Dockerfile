@@ -16,15 +16,22 @@ RUN apk add --no-cache \
     make \
     g++ \
     jq \
-    openssl
+    openssl \
+    bash
 
 WORKDIR /build
 
 # Copy entire repository (needed for pnpm workspace to work correctly)
 COPY . .
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies with relaxed constraints for build environment
+# Using --no-frozen-lockfile in case of lockfile sync issues
+# network-timeout increased for slower connections
+RUN pnpm config set store-dir /root/.pnpm-store && \
+    pnpm config set network-timeout 300000 && \
+    pnpm install --no-frozen-lockfile || \
+    (echo "First install failed, trying with legacy peer deps..." && \
+     pnpm install --no-frozen-lockfile --legacy-peer-deps)
 
 # Build the application
 RUN pnpm build

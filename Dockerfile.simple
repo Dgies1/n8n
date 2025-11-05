@@ -1,0 +1,30 @@
+# ==============================================================================
+# Alternative Simpler Dockerfile - Uses official n8n as base
+# ==============================================================================
+# This approach is faster and more reliable for Coolify
+# It uses the official n8n image and only replaces the modified license files
+# ==============================================================================
+
+FROM docker.n8n.io/n8nio/n8n:1.114.4 AS base
+
+USER root
+
+# Copy our modified license files over the official ones
+COPY packages/cli/src/license.ts /usr/local/lib/node_modules/n8n/packages/cli/src/license.ts
+COPY packages/@n8n/backend-common/src/license-state.ts /usr/local/lib/node_modules/n8n/packages/@n8n/backend-common/src/license-state.ts
+COPY packages/cli/src/services/frontend.service.ts /usr/local/lib/node_modules/n8n/packages/cli/src/services/frontend.service.ts
+COPY packages/cli/src/environments.ee/source-control/source-control-helper.ee.ts /usr/local/lib/node_modules/n8n/packages/cli/src/environments.ee/source-control/source-control-helper.ee.ts
+
+# Rebuild just the CLI package with our changes
+RUN cd /usr/local/lib/node_modules/n8n && \
+    npm install -g pnpm@9.12.3 && \
+    cd packages/cli && \
+    pnpm build && \
+    cd packages/@n8n/backend-common && \
+    pnpm build
+
+USER node
+
+LABEL org.opencontainers.image.title="n8n-unlocked" \
+      org.opencontainers.image.description="n8n with all Enterprise features unlocked" \
+      org.opencontainers.image.source="https://github.com/Dgies1/n8n"

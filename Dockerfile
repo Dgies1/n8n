@@ -6,7 +6,7 @@ ARG NODE_VERSION=22.21.0
 FROM node:${NODE_VERSION}-alpine AS builder
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.12.3 --activate
 
 # Install build dependencies
 RUN apk add --no-cache \
@@ -20,12 +20,8 @@ RUN apk add --no-cache \
 
 WORKDIR /build
 
-# Copy package files first for better caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
-COPY patches ./patches
-
-# Copy all package.json files
-COPY packages ./packages
+# Copy entire repository (needed for pnpm workspace to work correctly)
+COPY . .
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile

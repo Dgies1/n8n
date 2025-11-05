@@ -1,9 +1,10 @@
 services:
   n8n:
-    # Use your unlocked custom build from GitHub
-    # When deploying from Git in Coolify, use: ${IMAGE}
-    # When deploying pre-built image, use your registry: ghcr.io/dgies1/n8n-unlocked:latest
-    image: ${IMAGE:-ghcr.io/dgies1/n8n-unlocked:latest}
+    # Build from Dockerfile in repository
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: n8n-unlocked:${COMMIT_SHA:-latest}
     environment:
       - SERVICE_URL_N8N_5678
       - N8N_EDITOR_BASE_URL=${SERVICE_URL_N8N}
@@ -57,8 +58,8 @@ services:
       retries: 10
 
   n8n-worker:
-    # Same unlocked image for worker
-    image: ${IMAGE:-ghcr.io/dgies1/n8n-unlocked:latest}
+    # Use the same built image as n8n
+    image: n8n-unlocked:${COMMIT_SHA:-latest}
     command: worker
     environment:
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Berlin}

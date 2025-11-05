@@ -29,9 +29,7 @@ COPY . .
 # network-timeout increased for slower connections
 RUN pnpm config set store-dir /root/.pnpm-store && \
     pnpm config set network-timeout 300000 && \
-    pnpm install --no-frozen-lockfile || \
-    (echo "First install failed, trying with legacy peer deps..." && \
-     pnpm install --no-frozen-lockfile --legacy-peer-deps)
+    pnpm install --no-frozen-lockfile --no-strict-peer-dependencies
 
 # Build the application
 RUN pnpm build
